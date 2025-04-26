@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  flask_app:
+    build: .
+    container_name: yosker_ai_app
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - EMAIL_SENDER=${EMAIL_SENDER}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+    restart: unless-stopped
