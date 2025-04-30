@@ -261,5 +261,9 @@ def send_email_route():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/health')
+def health_check():
+    return jsonify({'status': 'healthy'})
+
 if __name__ == '__main__':
     app.run()

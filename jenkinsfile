@@ -2,45 +2,42 @@ pipeline {
     agent any
 
     environment {
-        COMPOSE_FILE = 'docker-compose.yml'
-        PROJECT_NAME = 'YoskerAiCounselling'
+        DOCKER_IMAGE = 'yosker-ai-app'
+        DOCKER_TAG = "${env.BUILD_NUMBER}"
     }
 
     stages {
-
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
-                echo '📥 Cloning GitHub repository...'
-                git 'https://github.com/YOSKERnerv/-AICounselorWebsite.git'
+                checkout scm
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                echo "🔧 Building Docker image..."
-                sh "docker build -t ${PROJECT_NAME}_image ."
-            }
-        }
-
-        stage('Test Flask App') {
-            steps {
-                echo "🧪 Running basic Flask app test..."
                 script {
-                    sh "docker run -d -p 5001:5000 --name temp_test ${PROJECT_NAME}_image"
-                    sh "sleep 5" // Give time for the app to start
-                    sh "curl -I http://localhost:5001 || echo '⚠️ App may not have responded correctly'"
-                    sh "docker stop temp_test"
-                    sh "docker rm temp_test"
+                    docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
                 }
             }
         }
 
-        stage('Deploy with Docker Compose') {
+        stage('Run Tests') {
             steps {
-                echo "🚀 Deploying using Docker Compose..."
                 script {
-                    sh 'docker-compose down || true'
-                    sh 'docker-compose up -d --build'
+                    docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").inside {
+                        sh 'python -m pytest tests/'
+                    }
+                }
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+                        docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push()
+                        docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push('latest')
+                    }
                 }
             }
         }
@@ -48,13 +45,13 @@ pipeline {
 
     post {
         always {
-            echo '✅ Pipeline finished.'
+            cleanWs()
         }
         success {
-            echo '🎉 CI/CD Pipeline completed successfully.'
+            echo 'Pipeline completed successfully!'
         }
         failure {
-            echo '❌ CI/CD Pipeline failed.'
+            echo 'Pipeline failed!'
         }
     }
 }
