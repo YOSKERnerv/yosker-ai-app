@@ -8,27 +8,20 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: 'main', url: "${env.GIT_REPO}"
+                git url: "${env.GIT_REPO}"
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    docker.build('yosker-ai-app')
-                }
+                bat 'docker build -t yosker-ai-app .'
             }
         }
 
         stage('Run Docker Compose') {
             steps {
-                bat '''
-                    docker-compose down
-                    if %errorlevel% neq 0 (
-                        echo Compose down failed, continuing...
-                    )
-                    docker-compose up -d --build
-                '''
+                bat 'docker-compose down'
+                bat 'docker-compose up -d --build'
             }
         }
     }
