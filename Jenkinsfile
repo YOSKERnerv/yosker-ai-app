@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         GIT_REPO = 'https://github.com/YOSKERnerv/yosker-ai-app.git'
-        POWERSHELL_PATH = 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'
     }
 
     stages {
@@ -15,21 +14,21 @@ pipeline {
 
         stage('Verify Docker Installation') {
             steps {
-                bat "${env.POWERSHELL_PATH} -Command \"docker --version\""
-                bat "${env.POWERSHELL_PATH} -Command \"docker-compose --version\""
+                bat 'docker --version'
+                bat 'docker-compose --version'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                bat "${env.POWERSHELL_PATH} -Command \"docker build -t yosker-ai-app .\""
+                bat 'docker build -t yosker-ai-app .'
             }
         }
 
         stage('Run Docker Compose') {
             steps {
-                bat "${env.POWERSHELL_PATH} -Command \"docker-compose down || exit 0\""
-                bat "${env.POWERSHELL_PATH} -Command \"docker-compose up -d --build\""
+                bat 'docker-compose down || exit 0'
+                bat 'docker-compose up -d --build'
             }
         }
     }
