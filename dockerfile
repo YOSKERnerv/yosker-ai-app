@@ -1,21 +1,21 @@
-# Use Python base image
+# Use official Python image
 FROM python:3.10-slim
 
-# Set the working directory
+# Set working directory
 WORKDIR /app
 
-# Install system dependencies if needed
-RUN apt-get update && apt-get install -y gcc
-
-# Copy requirements file and install Python packages
+# Copy requirements first and install
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the whole project into the container
+# Copy source code
 COPY . .
 
-# Expose Flask port
-EXPOSE 5000
+# Set environment variables (optional fallback)
+ENV PORT=9090
+
+# Expose the port
+EXPOSE 9090
 
 # Run the Flask app
-CMD ["python", "first.py"]
+CMD ["python", "app.py"]

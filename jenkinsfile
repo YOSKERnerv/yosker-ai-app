@@ -2,56 +2,38 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'yosker-ai-app'
-        DOCKER_TAG = "${env.BUILD_NUMBER}"
+        GIT_REPO = 'https://github.com/YOSKERnerv/yosker-ai-app.git'
     }
 
     stages {
-        stage('Checkout') {
+        stage('Clone Repository') {
             steps {
-                checkout scm
+                git url: "${env.GIT_REPO}"
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+                    docker.build('yosker-ai-app')
                 }
             }
         }
 
-        stage('Run Tests') {
+        stage('Run Docker Compose') {
             steps {
-                script {
-                    docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").inside {
-                        sh 'python -m pytest tests/'
-                    }
-                }
-            }
-        }
-
-        stage('Push to Docker Hub') {
-            steps {
-                script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-                        docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push()
-                        docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push('latest')
-                    }
-                }
+                sh 'docker-compose down || true'
+                sh 'docker-compose up -d --build'
             }
         }
     }
 
     post {
-        always {
-            cleanWs()
+        failure {
+            echo 'Build failed!'
         }
         success {
-            echo 'Pipeline completed successfully!'
-        }
-        failure {
-            echo 'Pipeline failed!'
+            echo 'Deployment successful!'
         }
     }
 }

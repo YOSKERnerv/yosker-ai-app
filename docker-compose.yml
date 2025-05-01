@@ -1,20 +1,10 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  flask_app:
+  web:
     build: .
-    container_name: yosker_ai_app
     ports:
-      - "5000:5000"
-    volumes:
-      - .:/app
-    environment:
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - EMAIL_SENDER=${EMAIL_SENDER}
-      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - "9090:9090"
+    env_file:
+      - .env
+    restart: always
