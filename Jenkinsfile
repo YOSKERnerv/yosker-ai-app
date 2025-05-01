@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git url: "${env.GIT_REPO}"
+                git branch: 'main', url: "${env.GIT_REPO}"
             }
         }
 
@@ -22,8 +22,13 @@ pipeline {
 
         stage('Run Docker Compose') {
             steps {
-                bat 'docker-compose down || true'
-                bat 'docker-compose up -d --build'
+                bat '''
+                    docker-compose down
+                    if %errorlevel% neq 0 (
+                        echo Compose down failed, continuing...
+                    )
+                    docker-compose up -d --build
+                '''
             }
         }
     }
