@@ -14,21 +14,21 @@ pipeline {
 
         stage('Verify Docker Installation') {
             steps {
-                bat 'docker --version'
-                bat 'docker-compose --version'
+                powershell 'docker --version'
+                powershell 'docker-compose --version'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t yosker-ai-app .'
+                powershell 'docker build -t yosker-ai-app .'
             }
         }
 
         stage('Run Docker Compose') {
             steps {
-                bat 'docker-compose down || exit 0'
-                bat 'docker-compose up -d --build'
+                powershell 'docker-compose down || exit 0'
+                powershell 'docker-compose up -d --build'
             }
         }
     }
