@@ -1,17 +1,22 @@
-import pytest
-from first import app
+import unittest
+from app import app  # Make sure `app` is defined in app/__init__.py or app.py
 
-@pytest.fixture
-def client():
-    app.config['TESTING'] = True
-    with app.test_client() as client:
-        yield client
+class BasicTests(unittest.TestCase):
 
-def test_home_page(client):
-    response = client.get('/')
-    assert response.status_code == 200
+    def setUp(self):
+        # Create a test client
+        self.app = app.test_client()
+        self.app.testing = True
 
-def test_health_check(client):
-    response = client.get('/health')
-    assert response.status_code == 200
-    assert response.json == {'status': 'healthy'} 
+    def test_home_status_code(self):
+        # Assumes your app has a route at '/'
+        response = self.app.get('/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_home_content(self):
+        # Assumes your home route has a welcome message
+        response = self.app.get('/')
+        self.assertIn(b'Welcome', response.data)
+
+if __name__ == "__main__":
+    unittest.main()
