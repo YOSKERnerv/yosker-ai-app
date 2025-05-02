@@ -1,5 +1,5 @@
 import unittest
-from app import app  # Make sure `app` is defined in app/__init__.py or app.py
+from first import app  # Make sure `app` is defined in app/__init__.py or app.py
 
 class BasicTests(unittest.TestCase):
 
